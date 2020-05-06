@@ -7,7 +7,7 @@
 #include <string.h> 
 
 //Create and initialize bloom filter to zeroes. 
-int bloom[MAX_BLOOM_FILTER]; 
+int bloomFilter[MAX_BLOOM_FILTER]; 
 
 /*
 The implementation of murmur hash function
@@ -23,7 +23,7 @@ int murmur(char *key){
 
     //TODO: Your code goes here
 
-    return index % MAX_BLOOM_FILTER;
+    return (index + 1)% MAX_BLOOM_FILTER;
 }
 
   
@@ -41,7 +41,7 @@ int fnv(char *key){
 
     //TODO: Your code goes here
 
-    return index % MAX_BLOOM_FILTER;
+    return (index +  2)% MAX_BLOOM_FILTER;
 }
 
 
@@ -51,15 +51,13 @@ The implementation of hashMix hash function.
 int hashMix(char *key){
     int index = 0;
     
-    ///ND: DUmmpy implementation.
+    ///NB: DUmmpy implementation.
 
     for(unsigned int i=0; i < strlen(key); i++){
         index += (int)key[i];
     }
 
-    //TODO: Your code goes here
-
-    return index % MAX_BLOOM_FILTER;
+    return (index + 3)% MAX_BLOOM_FILTER;
 }
 
 void addKey(char *key, int bloom[]){

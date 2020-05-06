@@ -8,18 +8,6 @@
 #define RELATION_SIZE 100 
 
 char **readFile(char *filename, int column){
-    //YOur code goes here 
-
-    //TODO: Create dynamic relation instead of static. 
-    //Try to allocate space for relation(table)
-    size_t relationSize = 100;    
-    char **relation = (char **)malloc(relationSize * sizeof(char *)); 
-
-    //If not successful 
-    if(relation == NULL){
-        fprintf(stderr, "Unable to allocate memoery\n");
-        exit(EXIT_FAILURE);
-    }
 
     //Try to OPen read only file
     FILE *f = fopen(filename, "r");
@@ -30,6 +18,17 @@ char **readFile(char *filename, int column){
         exit(EXIT_FAILURE);
     }
 
+    //Try to allocate space for relation(table)
+    size_t relationSize = 100;    
+    char **relation = (char **)malloc(relationSize * sizeof(char *)); 
+
+    //If not successful 
+    if(relation == NULL){
+        fprintf(stderr, "Unable to allocate memoery\n");
+        exit(EXIT_FAILURE);
+    }
+
+    //For reading each line from file. 
     char *line = NULL;
     size_t lineSize = 1024;
 
@@ -46,6 +45,16 @@ char **readFile(char *filename, int column){
 
         //Add line to relation (table)
         relation[index] = line; 
+
+        //Reallocate (increase table size).
+        /*relationSize +=1; 
+        relation = (char **)realloc(relation, relationSize);*/
+
+        if(relation == NULL){
+            fprintf(stderr, "Unable to reallocate memoery\n");
+            exit(EXIT_FAILURE);
+        }
+
         index +=1; 
     }
     
@@ -81,7 +90,11 @@ char *splitLine(char *line, const char *delim){
 }
 
 void deleteFile(char *filename){
-    //YOur code goes here...
+    if(remove(filename) ==0 ){
+        printf("Removing file %s...", filename);
+    }else{
+        printf("Error removing file.");
+    }
 }
 
 
