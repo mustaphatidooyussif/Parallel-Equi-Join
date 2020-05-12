@@ -7,6 +7,8 @@
 
 #define RELATION_SIZE 100 
 
+size_t num_rows = 0;
+
 char **readFile(char *filename, int column){
 
     //Try to OPen read only file
@@ -29,39 +31,43 @@ char **readFile(char *filename, int column){
     }
 
     //For reading each line from file. 
-    char *line = NULL;
-    size_t lineSize = 1024;
-
-    line  = (char *)malloc(lineSize * sizeof(char));
-
-    if (line == NULL ){
-        fprintf(stderr, "Unable to allocate memory\n");
-        exit(EXIT_FAILURE);
-    }
 
     //Read each line from file. 
-    unsigned int index = 0; 
-    while(getline(&line, &lineSize, f) != -1){
+    char *lineBuf = NULL;
+    size_t n = 0;
+    ssize_t lineLength = 0;
+    size_t index = 0; 
+    size_t rowChunk = 10;
 
-        //Add line to relation (table)
-        relation[index] = line; 
+    while((lineLength = getline(&lineBuf, &n, f)) != -1){
 
-        //Reallocate (increase table size).
-        /*relationSize +=1; 
-        relation = (char **)realloc(relation, relationSize);*/
+        if (index >= rowChunk){
+            //increase number of rows and realloc 
+            rowChunk +=rowChunk; 
 
-        if(relation == NULL){
-            fprintf(stderr, "Unable to reallocate memoery\n");
-            exit(EXIT_FAILURE);
+            char **temp = realloc(relation, rowChunk*sizeof(char *));
+            if (temp == NULL ){
+                fprintf(stderr, "Unable to allocate memory\n");
+                exit(EXIT_FAILURE);
+            }
+
+            relation = temp; 
         }
 
-        index +=1; 
+        lineBuf[strcspn(lineBuf, "\n")] = 0;
+            
+        //Allocate space on the heap for line
+         *(relation + index)  = malloc((lineLength + 1) * sizeof(char));
+
+        //copy line into 
+        strcpy(*(relation + index), lineBuf);
+
+        index ++; 
     }
     
-    relation[index] = NULL; //Mark end of relation. 
+    //relation[index] = NULL; //Mark end of relation. 
+    num_rows = index; //set the number of rows in table
 
-    //FREE LINE
-    //free(line); 
 
     //Close file. 
     //close(f);
@@ -69,9 +75,8 @@ char **readFile(char *filename, int column){
 }
 
 
-char *splitLine(char *line, const char *delim){
+char *splitLine(char *line, int index, const char *delim){
 
-    int index = 1; 
     int i= 0;
     char *joinColomn, *found;
 
@@ -79,7 +84,7 @@ char *splitLine(char *line, const char *delim){
     while( (found = strsep(&line, delim)) != NULL){
 
         //Stop if reached the join column. 
-        if (i==index){
+        if (i == index){
             joinColomn = found;
             break; 
         }
