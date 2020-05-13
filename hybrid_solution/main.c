@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
         r2 = readFile(r2_name, joinColPos);
         r2_length = num_rows;
 
-        //TODO: CHECK LENGTH PASSED (r1_length x 1024)
+        //TODO: send the small table to node one 
         sendTable(r1, r1_length, 1, tag_zero);
 
         sendTable(r2, r2_length, 2, tag_zero);
@@ -103,11 +103,14 @@ int main(int argc, char *argv[]){
             char **r1_rec = receiveTable(0, tag_zero);
 
             //Prepare filter
+            #pragma omp parallel for schedule(static)
             for(unsigned int i=0; i < recv_table_len; i++){
                 char line_1[1024];
                 strcpy(line_1, r1_rec[i]);
 
                 char *joinColumn = splitLine(line_1, joinColPos, delim);
+
+                #pragma omp critical 
                 addKey(joinColumn, bloomFilter);
             }
 
@@ -131,15 +134,20 @@ int main(int argc, char *argv[]){
             //Write results to file (R3.txt)
             printf("%s\n", results[0]);
             char resultsFile[] = "R3.txt";
-            writeIntoFile(results, resultsFile);
+
+            #pragma omp crical 
+            writeIntoFile(results, numOfJoinTuples, resultsFile);
             
             //free the array of strings 
+            #pragma omp parallel for schedule(static)
             for (size_t i=0; i< recv_table_len; i++){
                 free(*(r1_rec + i));
             }
+
             free(r1_rec);
 
             //free array of strings 
+            #pragma omp parallel for schedule(static)
             for(size_t j=0; j< numOfJoinTuples; j++){
                 free(*(results + j));
             }
@@ -166,6 +174,7 @@ int main(int argc, char *argv[]){
             }
 
             unsigned int index = 0;
+            #pragma omp parallel for schedule(static)
             for(unsigned int i=0; i < recv_table_len; i ++){
                 char line[1024];
                 strcpy(line, r2_rec[i]);
@@ -195,6 +204,7 @@ int main(int argc, char *argv[]){
             */
 
             //free array of strings 
+            #pragma omp parallel for schedule(static)
             for(size_t i=0; i< recv_table_len; i++){
                 free(*(r2_rec + i));
             }
@@ -202,6 +212,7 @@ int main(int argc, char *argv[]){
 
             //free array of strings
             int numTuples = index;
+            #pragma omp parallel for schedule(static)
             for(size_t  j=0; j < numTuples; j++){
                 free(*(tuples +j));
             }
@@ -219,14 +230,6 @@ int main(int argc, char *argv[]){
 
     //free hashtable
     releaseHashTable();
-
-    //clearing memory
-    /*
-    free(tuples);
-    free(r1_rec);
-    free(r2_rec);
-    free(bloomFilter_rec);
-    free(bloomFilter);*/
     
     return 0;
 }

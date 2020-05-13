@@ -102,11 +102,11 @@ void deleteFile(char *filename){
 }
 
 
-void writeIntoFile(char **results, char *filename){
+void writeIntoFile(char **results, size_t n, char *filename){
 
     deleteFile(filename);
 
-    FILE *f = fopen(filename, "wb");
+    FILE *f = fopen(filename, "w");
 
     //If cannot open file
     if(f==NULL){
@@ -114,13 +114,9 @@ void writeIntoFile(char **results, char *filename){
         exit(EXIT_FAILURE);
     }
 
-    int written = 0;
-    written = fwrite(&results, sizeof(char), sizeof(results), f);
-    if(written ==0){
-        fprintf(stderr, "Error while writing to file\n");
-        exit(EXIT_FAILURE);
+    for(size_t i =0 ; i < n ; i++){
+        fputs(results[i], f);
     }
-
     fclose(f);
 }
 

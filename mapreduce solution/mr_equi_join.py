@@ -12,8 +12,7 @@ class MREQuiJoin(MRJob):
         This method configures commandline 
         options for the program. 
         The commandline options:
-            --stop-words: the name of the file 
-            containing the stop words. 
+            --column: the index of the join column.
         """
         super(MREQuiJoin, self).configure_args()
         self.add_passthru_arg(
@@ -29,7 +28,7 @@ class MREQuiJoin(MRJob):
 
     def mapper_init(self):
         """
-        This method initializes or setup 
+        This method initializes or setups 
         the resources needed by the mapper function. 
         """
         self.table_delim_map = "|"

@@ -4,6 +4,7 @@
 #include <stdlib.h> 
 #include <stdio.h> 
 #include <string.h> 
+#include <omp.h> 
 
 int numOfJoinTuples = 0;
 
@@ -49,6 +50,7 @@ char ** equiJoin(char **table_1, int table_1_ln, int joinColPos, const char* del
         exit(EXIT_FAILURE);
     }
     
+    #pragma omp parallel for schedule(static) 
     for(unsigned int i=0; i < table_1_ln; i++){
 
         char line[1024];
@@ -102,9 +104,6 @@ char ** equiJoin(char **table_1, int table_1_ln, int joinColPos, const char* del
                 index ++;
 
             }
-
-            //free array of strings 
-
         } 
     } 
     numOfJoinTuples = index; 
