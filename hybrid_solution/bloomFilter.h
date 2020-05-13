@@ -30,24 +30,36 @@ int hash(char *key){
 void addItem(char *key, char *line){
 
     int index = hash(key);
-
+    
     item *n = malloc(sizeof(item));
-    n->key = key;
-    n->line = line; 
 
+    //add key
+    n->key = malloc(100*sizeof(char));
+    strcpy(n->key, key);
+
+    //add line
+    n->line = malloc(1024*sizeof(char)); 
+    strcpy(n->line, line);
+
+    //net item
+    n->next = NULL;
+    
     //Insert if index has no item.
     if (hashTable[index] == NULL){
-
         hashTable[index] = n; 
     }else{
+        
         //Loop to the appropriate place to insert.
         item *ptr = hashTable[index];
-
-        while(ptr->next !=NULL){
+        
+        
+        while(ptr->next != NULL){
             ptr = ptr->next;
         }
+        
         ptr->next = n;
-    }
+        
+    } 
 }
 
 int numOfItemsInBucket(char *key){
@@ -58,11 +70,12 @@ int numOfItemsInBucket(char *key){
     if (hashTable[index] == NULL){
         return count;
     }else{
+        count ++;
 
         //count all items in this bucket.
         item *ptr = hashTable[index];
 
-        while(ptr->next !=NULL){
+        while(ptr->next != NULL){
             count ++;
             ptr = ptr->next;
         }
@@ -70,7 +83,7 @@ int numOfItemsInBucket(char *key){
     }
 }
 
-item ** findItemsInBuckey(char *key){
+item ** findItemsInBucket(char *key){
 
     int index = hash(key);
 
@@ -102,6 +115,42 @@ item ** findItemsInBuckey(char *key){
     }
     
 
+}
+
+void printItemsInBucket(int index){
+
+    item *ptr = hashTable[index];
+
+    while(ptr != NULL){
+        printf("\n-------------------------------------------------\n");
+        printf("\n%d\n", numOfItemsInBucket(ptr->key));
+        printf("\n%s\n", ptr->key);
+        printf("\n%s\n", ptr->line);
+        printf("\n-------------------------------------------------\n");
+        ptr = ptr->next; 
+    }
+}
+
+void printHashTable(){
+    for(unsigned int i=0; i < HASH_TABLE_SIZE; i++){
+        printItemsInBucket(i);
+    }
+}
+
+//Release allocated memory for hash table
+void releaseHashTable(){
+    for(unsigned int i=0; i < HASH_TABLE_SIZE; i++){
+        item *ptr = hashTable[i];
+        item *temp = NULL; 
+
+        //free memory in bucket. 
+        while(ptr != NULL){
+            temp = ptr->next; 
+            free(ptr); 
+            ptr = temp; 
+        }
+        free(hashTable[i]);
+    }
 }
 
 //Create and initialize bloom filter to zeroes. 

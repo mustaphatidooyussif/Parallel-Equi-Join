@@ -20,16 +20,6 @@ char **readFile(char *filename, int column){
         exit(EXIT_FAILURE);
     }
 
-    //Try to allocate space for relation(table)
-    size_t relationSize = 100;    
-    char **relation = (char **)malloc(relationSize * sizeof(char *)); 
-
-    //If not successful 
-    if(relation == NULL){
-        fprintf(stderr, "Unable to allocate memoery\n");
-        exit(EXIT_FAILURE);
-    }
-
     //For reading each line from file. 
 
     //Read each line from file. 
@@ -38,6 +28,15 @@ char **readFile(char *filename, int column){
     ssize_t lineLength = 0;
     size_t index = 0; 
     size_t rowChunk = 10;
+
+    //Try to allocate space for relation(table)
+    char **relation = (char **)malloc(rowChunk * sizeof(char *)); 
+
+    //If not successful 
+    if(relation == NULL){
+        fprintf(stderr, "Unable to allocate memoery\n");
+        exit(EXIT_FAILURE);
+    }
 
     while((lineLength = getline(&lineBuf, &n, f)) != -1){
 
@@ -70,7 +69,7 @@ char **readFile(char *filename, int column){
 
 
     //Close file. 
-    //close(f);
+    fclose(f);
     return relation; 
 }
 
@@ -96,11 +95,33 @@ char *splitLine(char *line, int index, const char *delim){
 
 void deleteFile(char *filename){
     if(remove(filename) ==0 ){
-        printf("Removing file %s...", filename);
+        printf("Removing file %s...\n", filename);
     }else{
-        printf("Error removing file.");
+        printf("Error removing file.\n");
     }
 }
 
+
+void writeIntoFile(char **results, char *filename){
+
+    deleteFile(filename);
+
+    FILE *f = fopen(filename, "wb");
+
+    //If cannot open file
+    if(f==NULL){
+        fprintf(stderr, "Cannot open file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int written = 0;
+    written = fwrite(&results, sizeof(char), sizeof(results), f);
+    if(written ==0){
+        fprintf(stderr, "Error while writing to file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fclose(f);
+}
 
 #endif 
