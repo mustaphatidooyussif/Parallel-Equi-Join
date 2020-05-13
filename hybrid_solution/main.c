@@ -21,6 +21,7 @@ int recv_table_len = 0;
 void sendTable(char **buf, int table_len, int dest, int tag);
 char ** receiveTable(int source, int tag);
 void receiveJoinCollection(int source, int tag, int joinColPos);
+void equi_join(char **table_1, int table_1_ln, int joinColPos);
 
 int main(int argc, char *argv[]){
     /*
@@ -53,8 +54,6 @@ int main(int argc, char *argv[]){
         bloomFilter[i] = 0; 
     }
 
-
-
     /*Initialize the MPI environment*/
     MPI_Init(&argc, &argv);
 
@@ -67,6 +66,8 @@ int main(int argc, char *argv[]){
     int tag_zero = 0;
     int tag_one = 1;
     int tag_two = 2; 
+    int tag_three = 3;
+    int tag_four = 4;
 
     /*
     STEP: 1
@@ -91,7 +92,7 @@ int main(int argc, char *argv[]){
         //TODO: CHECK LENGTH PASSED (r1_length x 1024)
         sendTable(r1, r1_length, 1, tag_zero);
 
-        sendTable(r2, r2_length, 2, tag_zero);
+        sendTable(r2, r2_length, 2, tag_one);
         
         //free memory
         free(r1);
@@ -120,25 +121,21 @@ int main(int argc, char *argv[]){
             
             //Send the filled bloom filter to process 2
             MPI_Send(bloomFilter, MAX_BLOOM_FILTER, MPI_INT, 2, 
-                    tag_zero, MPI_COMM_WORLD);
+                    tag_three, MPI_COMM_WORLD);
 
                     
             //STEP: FOUR
             //Receive possible join tuples from node 2 and perform 
             //equi-join. 
             
-            //receiveJoinCollection(2, tag_one, joinColPos);
+            receiveJoinCollection(2, tag_four, joinColPos);
 
-            /*
-            //Receive possible join tuples from process 2
             //perform the equi-join and write the results to a file. 
-            char **joinTuples = NULL;
-            MPI_Recv(&(joinTuples[0][0]), tupleSize, MPI_CHAR, 2, tag_zero, MPI_COMM_WORLD,
-                MPI_STATUS_IGNORE);
-
             //DO equi-join 
+            //equi_join(r1_rec, recv_table_len, joinColPos);
+
             printf("----------------------------------------------\n");
-            */
+            
             //Write results to file (R3.txt)
 
             free(r1_rec);
@@ -147,7 +144,7 @@ int main(int argc, char *argv[]){
 
             printf("In process 2\n");
 
-            char **r2_rec = receiveTable(0, tag_zero);
+            char **r2_rec = receiveTable(0, tag_one);
             printf("Received table 2 size(%d: )\n", recv_table_len);
             
                         
@@ -156,7 +153,7 @@ int main(int argc, char *argv[]){
             
             //Receive filled bloom filter from process 1. 
             int bloomFilter_rec[MAX_BLOOM_FILTER];
-            MPI_Recv(bloomFilter_rec, MAX_BLOOM_FILTER, MPI_INT, 1, tag_zero, MPI_COMM_WORLD,
+            MPI_Recv(bloomFilter_rec, MAX_BLOOM_FILTER, MPI_INT, tag_three, tag_zero, MPI_COMM_WORLD,
                 MPI_STATUS_IGNORE);
 
             
@@ -185,7 +182,7 @@ int main(int argc, char *argv[]){
 
             }
 
-            sendTable(tuples, tupleTotalSize, 1, tag_one);
+            sendTable(tuples, tupleTotalSize, 1, tag_four);
 
             /*
 
@@ -288,7 +285,7 @@ void receiveJoinCollection(int source, int tag, int joinColPos){
         char line[1024];
         //memset(line, 0, sizeof(line));
         MPI_Recv(&line_len, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(line, line_len + 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(line, line_len + 1, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         //Add items to hash table 
         char *joinColumn = splitLine(line, joinColPos, delim);
@@ -323,7 +320,7 @@ void equi_join(char **table_1, int table_1_ln, int joinColPos){
                 strncpy(stringTwo, joinLines[j]->line + endIndex, stringTwoLen);
 
                 char result[1024];
-                strcat(result, table_1[i]);
+                strcpy(result, table_1[i]);
                 strcat(result,stringOne);
                 strcat(result, stringTwo);
 
