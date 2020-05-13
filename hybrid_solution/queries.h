@@ -5,6 +5,7 @@
 #include <stdio.h> 
 #include <string.h> 
 
+int numOfJoinTuples = 0;
 
 char *lineFromR2WithoutJoinColumn(char *line, int index, const char *delim)
 {
@@ -91,18 +92,22 @@ char ** equiJoin(char **table_1, int table_1_ln, int joinColPos, const char* del
                 strcpy(result, table_1[i]);
                 strcat(result, lineToJoin);
 
+                free(lineToJoin);
+                
                 *(results + index)  = malloc(1024 * sizeof(char));
 
                 //copy line into 
                 strcpy(*(results + index), result);
 
                 index ++;
-                //Print joined line
 
-                free(lineToJoin);
             }
+
+            //free array of strings 
+
         } 
     } 
+    numOfJoinTuples = index; 
 
     return results;
 }

@@ -108,6 +108,9 @@ item ** findItemsInBucket(char *key){
         while(ptr->next !=NULL){
             ptr =  ptr->next;
             i ++;
+            
+            //allocate space and add item
+            items[i] = malloc(1024 * sizeof(item));
             items[i] =  ptr;
         }
 
@@ -146,10 +149,14 @@ void releaseHashTable(){
         //free memory in bucket. 
         while(ptr != NULL){
             temp = ptr->next; 
-            free(ptr); 
+
+            //free item
+            free(ptr->key);
+            free(ptr->line);
+            free(ptr);
+
             ptr = temp; 
         }
-        free(hashTable[i]);
     }
 }
 

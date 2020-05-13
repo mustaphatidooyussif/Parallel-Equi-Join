@@ -67,7 +67,8 @@ char **readFile(char *filename, int column){
     //relation[index] = NULL; //Mark end of relation. 
     num_rows = index; //set the number of rows in table
 
-
+    //free linebuf utilized by `getline()`
+    free(lineBuf);
     //Close file. 
     fclose(f);
     return relation; 
@@ -89,7 +90,6 @@ char *splitLine(char *line, int index, const char *delim){
         }
         i ++;
     }
-
     return joinColomn;
 }
 

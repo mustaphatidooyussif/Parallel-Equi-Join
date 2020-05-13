@@ -129,10 +129,20 @@ int main(int argc, char *argv[]){
             char **results = equiJoin(r1_rec, recv_table_len, joinColPos, delim);
 
             //Write results to file (R3.txt)
+            printf("%s\n", results[0]);
             char resultsFile[] = "R3.txt";
             writeIntoFile(results, resultsFile);
-
+            
+            //free the array of strings 
+            for (size_t i=0; i< recv_table_len; i++){
+                free(*(r1_rec + i));
+            }
             free(r1_rec);
+
+            //free array of strings 
+            for(size_t j=0; j< numOfJoinTuples; j++){
+                free(*(results + j));
+            }
             free(results);
 
         }else if(my_rank == 2){
@@ -184,7 +194,19 @@ int main(int argc, char *argv[]){
 
             */
 
+            //free array of strings 
+            for(size_t i=0; i< recv_table_len; i++){
+                free(*(r2_rec + i));
+            }
             free(r2_rec);
+
+            //free array of strings
+            int numTuples = index;
+            for(size_t  j=0; j < numTuples; j++){
+                free(*(tuples +j));
+            }
+
+            free(tuples);
         }else{
             fprintf(stderr, "Number of process mismatched\n");
             exit(EXIT_FAILURE);
@@ -195,9 +217,11 @@ int main(int argc, char *argv[]){
     //Finalize the MPI environment
     MPI_Finalize();
 
+    //free hashtable
+    releaseHashTable();
+
     //clearing memory
-    /*free(r1);
-    free(r2);
+    /*
     free(tuples);
     free(r1_rec);
     free(r2_rec);
