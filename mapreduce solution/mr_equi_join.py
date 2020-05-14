@@ -20,12 +20,6 @@ class MREQuiJoin(MRJob):
             help = "specify the index of the join column. "
         )
 
-        self.add_file_arg(
-            "--R3", 
-            help = "specify R3 file name. ",
-            default = "R3.txt"
-        )
-
     def mapper_init(self):
         """
         This method initializes or setups 
@@ -88,7 +82,6 @@ class MREQuiJoin(MRJob):
                 
         #Get command lin options
         column = int(self.options.column)
-        r3_name = self.options.R3
 
 
         #TODO: Perform join and write results to a file. 
