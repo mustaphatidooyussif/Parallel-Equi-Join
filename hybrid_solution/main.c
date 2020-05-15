@@ -18,6 +18,9 @@ const char* delim = "|";
 int recv_table_len = 0;
 
 
+//MPI_Wtime()
+//omp_get_wtime()
+
 void sendTable(char **buf, int table_len, int dest, int tag);
 char ** receiveTable(int source, int tag);
 void receiveJoinCollection(int source, int tag, int joinColPos);
@@ -47,8 +50,8 @@ int main(int argc, char *argv[]){
     unsigned int id = 0;
     unsigned int num_threads = 1; 
 
-    //TODO: Parallize this section. 
     //Initialize bloom filter to zeros. 
+    #pragma omp parallel for schedule(static)
     for(unsigned int i=0; i < MAX_BLOOM_FILTER; i++){
         bloomFilter[i] = 0; 
     }
@@ -68,6 +71,9 @@ int main(int argc, char *argv[]){
     int tag_three = 3;
     int tag_four = 4;
 
+    double t1, t2; 
+
+    t1 = MPI_Wtime();
     /*
     STEP: 1
     Read the relations into two tables R1 and R2. And
@@ -223,6 +229,12 @@ int main(int argc, char *argv[]){
             exit(EXIT_FAILURE);
         }
         
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    t2 = MPI_Wtime();
+    if(my_rank == 0){
+        printf("Parallel program ellapsed time: %f seconds\n", (t2-t1));
     }
 
     //Finalize the MPI environment

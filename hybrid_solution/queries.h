@@ -91,8 +91,12 @@ char ** equiJoin(char **table_1, int table_1_ln, int joinColPos, const char* del
                 
                 //join lines from R1 and R2
                 char result[1024];
+                table_1[i][strlen(table_1[i])-1] = '\0';
                 strcpy(result, table_1[i]);
+
+                lineToJoin[strlen(lineToJoin)-1] = '\0';
                 strcat(result, lineToJoin);
+                strcat(result, "\n");
 
                 free(lineToJoin);
                 

@@ -9,6 +9,14 @@
 
 size_t num_rows = 0;
 
+char *strremove(char *str, char *sub) {
+      if(sub)  //if  sub is not only a newline, copy to str
+		  strcpy(str, sub);
+
+	  str[strlen(str)-1] = '\0'; //replace newline
+	  return str;
+	}
+
 char **readFile(char *filename, int column){
 
     //Try to OPen read only file
@@ -53,8 +61,10 @@ char **readFile(char *filename, int column){
             relation = temp; 
         }
 
-        lineBuf[strcspn(lineBuf, "\n")] = 0;
-            
+        //lineBuf[strcspn(lineBuf, "\n")] = '\0';
+        
+        lineBuf[strlen(lineBuf)-1] = '\0';
+
         //Allocate space on the heap for line
          *(relation + index)  = malloc((lineLength + 1) * sizeof(char));
 
@@ -105,7 +115,7 @@ void deleteFile(char *filename){
 void writeIntoFile(char **results, size_t n, char *filename){
 
     deleteFile(filename);
-
+    printf("Results sise = %d\n", n);
     FILE *f = fopen(filename, "w");
 
     //If cannot open file
