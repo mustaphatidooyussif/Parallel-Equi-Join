@@ -101,7 +101,6 @@ int main(int argc, char *argv[]){
     char **results = equiJoin(r1, r1_length, joinColPos, delim);
 
     //Write results to file (R3.txt)
-    printf("%s\n", results[0]);
     char resultsFile[] = "Serial_R3.txt";
 
     writeIntoFile(results, numOfJoinTuples, resultsFile);   

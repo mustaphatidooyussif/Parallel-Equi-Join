@@ -164,9 +164,9 @@ void releaseHashTable(){
 int bloomFilter[MAX_BLOOM_FILTER]; 
 
 /*
-The implementation of murmur hash function
+The implementation of simpleHash hash function
 */
-int murmur(char *key){
+int simpleHash(char *key){
     int index = 0;
     
     int key_len = strlen(key);
@@ -177,7 +177,6 @@ int murmur(char *key){
         index += (int)key[i] * (i+1);
     }
 
-    //TODO: Your code goes here
 
     return (index + 1)% MAX_BLOOM_FILTER;
 }
@@ -186,17 +185,29 @@ int murmur(char *key){
 The implementation of djb2 has function.
 */
 int djb2(char *key){
+    /*
+    int hash = 0;
+    int c;
+
+    while(( c=*key++)){
+        hash = (int) ((hash << 5) + hash) + c;
+
+    }
+
+    return hash % MAX_BLOOM_FILTER; */
+
     int index = 0;
     
+    int key_len = strlen(key);
+
     ///ND: DUmmpy implementation.
 
     for(unsigned int i=0; i < strlen(key); i++){
         index += (int)key[i] * (i+1);
     }
 
-    //TODO: Your code goes here
 
-    return (index +  2)% MAX_BLOOM_FILTER;
+    return (index + 2)% MAX_BLOOM_FILTER;
 }
 
 
@@ -204,21 +215,31 @@ int djb2(char *key){
 The implementation of sdbm hash function. 
 */
 int sdbm(char *key){
+    /*
+    int hash = 0;
+    int c;
+
+    while(( c=*key++)){
+        hash = (int) (c + (hash << 6) + (hash << 16) - hash);
+
+    }
+
+    return hash % MAX_BLOOM_FILTER;*/
+
     int index = 0;
     
-    ///NB: DUmmpy implementation.
-
     for(unsigned int i=0; i < strlen(key); i++){
         index += (int)key[i] * (i+1);
     }
+
 
     return (index + 3)% MAX_BLOOM_FILTER;
 }
 
 void addKey(char *key, int bloom[]){
 
-    //Hash key with murmur function. 
-    int murmur_index = murmur(key);
+    //Hash key with simpleHash function. 
+    int simpleHash_index = simpleHash(key);
 
     //Hash the key with djb2 function. 
     int djb2_index = djb2(key);
@@ -227,7 +248,7 @@ void addKey(char *key, int bloom[]){
     int sdbm_index = sdbm(key);
 
     //Set the hashed-positions of the bloom filter to 1.
-    bloom[murmur_index] = 1;
+    bloom[simpleHash_index] = 1;
     bloom[djb2_index] = 1;
     bloom[sdbm_index] = 1;  
 
@@ -237,8 +258,8 @@ int keyExist(char *key, int bloom[]){
 
     int exist = 0;
 
-    //Hash key with murmur function. 
-    int murmur_index = murmur(key);
+    //Hash key with simpleHash function. 
+    int simpleHash_index = simpleHash(key);
 
     //Hash the key with djb2 function. 
     int djb2_index = djb2(key);
@@ -249,7 +270,7 @@ int keyExist(char *key, int bloom[]){
     /*If values at hashed-positions of bloom filters are 1s. 
     Set exist =1, and return 
     */
-    if(bloom[murmur_index] == 1 
+    if(bloom[simpleHash_index] == 1 
         && bloom[djb2_index] == 1 
         && bloom[sdbm_index] == 1){
             exist = 1;
