@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 
     char *r1_name = argv[1]; /*Name of file one.*/
     char *r2_name = argv[2]; /*Name of file two.*/
-    int joinColPos = atoi(argv[3]); /*Position of join column.*/
+    int joinColPos = atoi(argv[3]) + 1; /*Position of join column.*/
     size_t r1_length = 0; /*Number of rows in table 1*/
     size_t r2_length = 0;  /*Number of rows in table 2*/
     unsigned int tupleSize = 0;

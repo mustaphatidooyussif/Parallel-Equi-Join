@@ -49,7 +49,7 @@ class MREQuiJoin(MRJob):
                         R2_NAME = input_file_name
 
             #get join column 
-            key = line.split(self.table_delim_map)[self.column]
+            key = line.split(self.table_delim_map)[self.column-1]
             yield key, line 
 
         except:
@@ -61,38 +61,37 @@ class MREQuiJoin(MRJob):
         This method initializes or setup 
         the resources needed by the reducer function. 
         """
-        self.table_delim_red = "|"
-        self.r1 = []  ##table one
-        self.r2 = []   #table two 
+        self.table_delim_red = "|" 
 
     def reducer(self, key, values):
+        r1  = [] ##table one
+        r2 = [] #table two 
 
         #Step through tuples of tables
         #Get the name of the table (the first string when `value` is split)
         #Add values to the r1(table 1) and r2(table 2) base on the table name.
-        
+        c = 0
         for value in values:
+            c +=1
             table_name = value.split("*")[0]
             if table_name == R1_NAME:
-                self.r1.append(value.split("*")[1])
+                r1.append(value.split("*")[1])
             elif table_name == R2_NAME:
-                self.r2.append(value.split("*")[1])
+                r2.append(value.split("*")[1])
             else:
                 print('No table name')
                 
         #Get command lin options
-        column = int(self.options.column)
+        column = int(self.options.column) - 1
 
-
-        #TODO: Perform join and write results to a file. 
         #Do equi-join
-        for i in range(len(self.r1)):
-            for j in range(len(self.r2)):
-                r2_tuple = self.r2[j].split(self.table_delim_red)
+        for i in range(len(r1)):
+            for j in range(len(r2)):
+                r2_tuple = r2[j].split(self.table_delim_red)
                 r2_tuple.pop(column)
-                joined_tuple = self.r1[i] + "|".join(r2_tuple)
+                joined_tuple = r1[i] + "|".join(r2_tuple)
 
-                yield None , joined_tuple
+                yield None, joined_tuple
 
 if __name__=="__main__":
     MREQuiJoin.run()
