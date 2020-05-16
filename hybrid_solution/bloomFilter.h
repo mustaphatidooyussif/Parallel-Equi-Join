@@ -167,21 +167,23 @@ int bloomFilter[MAX_BLOOM_FILTER];
 The implementation of simpleHash hash function
 */
 int simpleHash(char *key){
-    int index = 0;
+    int hash = 0;
     
     for(unsigned int i=0; i < strlen(key); i++){
-        index += (int)key[i] * (i+1);
+        hash += (int)key[i] * (i+1);
     }
 
-
-    return (index + 1)% MAX_BLOOM_FILTER;
+    if (hash < 0){
+        hash = hash * -1;
+    }
+    return (hash + 1)% MAX_BLOOM_FILTER;
 }
 
 /*
 The implementation of djb2 has function.
 */
 int djb2(char *key){
-    /*
+    
     int hash = 0;
     int c;
 
@@ -190,8 +192,13 @@ int djb2(char *key){
 
     }
 
-    return hash % MAX_BLOOM_FILTER; */
+    if (hash < 0){
+        hash = hash * -1;
+    }
 
+    return hash % MAX_BLOOM_FILTER; 
+
+    /*
     int index = 0;
     
     for(unsigned int i=0; i < strlen(key); i++){
@@ -199,7 +206,7 @@ int djb2(char *key){
     }
 
 
-    return (index + 2)% MAX_BLOOM_FILTER;
+    return (index + 2)% MAX_BLOOM_FILTER; */
 }
 
 
@@ -207,17 +214,20 @@ int djb2(char *key){
 The implementation of sdbm hash function. 
 */
 int sdbm(char *key){
-    /*
+    
     int hash = 0;
     int c;
 
     while(( c=*key++)){
-        hash = (int) (c + (hash << 6) + (hash << 16) - hash);
-
+        hash = (int)((hash << 6) + (hash << 16)) - hash + c;
+    }
+    if (hash < 0){
+        hash = hash * -1;
     }
 
-    return hash % MAX_BLOOM_FILTER;*/
-
+    return hash % MAX_BLOOM_FILTER; 
+    
+    /*
     int index = 0;
     
     for(unsigned int i=0; i < strlen(key); i++){
@@ -225,7 +235,7 @@ int sdbm(char *key){
     }
 
 
-    return (index + 3)% MAX_BLOOM_FILTER;
+    return (index + 3)% MAX_BLOOM_FILTER;*/
 }
 
 void addKey(char *key, int bloom[]){

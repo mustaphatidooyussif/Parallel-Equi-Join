@@ -136,7 +136,6 @@ int main(int argc, char *argv[]){
             char **results = equiJoin(r1_rec, recv_table_len, joinColPos, delim);
 
             //Write results to file (R3.txt)
-            printf("%s\n", results[0]);
             char resultsFile[] = "R3.txt";
 
             #pragma omp crical 
