@@ -169,10 +169,6 @@ The implementation of simpleHash hash function
 int simpleHash(char *key){
     int index = 0;
     
-    int key_len = strlen(key);
-
-    ///ND: DUmmpy implementation.
-
     for(unsigned int i=0; i < strlen(key); i++){
         index += (int)key[i] * (i+1);
     }
@@ -198,10 +194,6 @@ int djb2(char *key){
 
     int index = 0;
     
-    int key_len = strlen(key);
-
-    ///ND: DUmmpy implementation.
-
     for(unsigned int i=0; i < strlen(key); i++){
         index += (int)key[i] * (i+1);
     }

@@ -9,14 +9,6 @@
 
 size_t num_rows = 0;
 
-char *strremove(char *str, char *sub) {
-      if(sub)  //if  sub is not only a newline, copy to str
-		  strcpy(str, sub);
-
-	  str[strlen(str)-1] = '\0'; //replace newline
-	  return str;
-	}
-
 char **readFile(char *filename, int column){
 
     //Try to OPen read only file
